@@ -6,6 +6,14 @@ def readConfig(configFile=''):
         Read email config file
         @input config file's filepath
         @return a dictionary 
+        
+        Config file content format:
+        IMAP:********
+        imap_port:********
+        SMTP:********
+        smtp_port:********
+        username:********
+        password:********
     '''
 
     config = dict()
