@@ -95,7 +95,7 @@ def main():
                     elif errObj.error_type == 'Airflow':
                         error_dict['airflow_error'].append(errObj)
     for errorType, errorList in error_dict.items():
-        print('{0} Error Occured: {1} time(s)'.format(errorType ,len(error_dict[errorType])))
+        print('* {0} Error Occured: {1} time(s)'.format(errorType ,len(error_dict[errorType])))
         if len(error_dict[errorType])>0:
             print('    Error Message Digest:')
             count = 0

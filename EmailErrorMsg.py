@@ -71,4 +71,4 @@ class EmailErrorMsg:
         print('Id:{0} Occur Time: {1}'.format(self.msg_id, self.time))
 
     def getOneSummary(self):
-        return 'Time: '+str(self.time)+' | Digest Content: '+ self.digest_content
+        return ' '+str(self.time)+' ||  '+ self.digest_content
