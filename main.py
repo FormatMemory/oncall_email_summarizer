@@ -97,13 +97,13 @@ def main():
     for errorType, errorList in error_dict.items():
         print('{0} Error Occured: {1} time(s)'.format(errorType ,len(error_dict[errorType])))
         if len(error_dict[errorType])>0:
-            print('Error Message Digest:')
+            print('    Error Message Digest:')
             count = 0
             for err in errorList:
                 count += 1
                 print('               [{0}] {1}'.format(count, err.getOneSummary()))
             print('\n') 
-        print('\n')
+        #print('\n')
             # if 'Airflow alert:' in envelope.subject.decode():
             #     print('ID #%d: "%s" received %s' % (msgid, envelope.subject.decode(), envelope.date))
             #     i = get_msg_content(client, msgid)
