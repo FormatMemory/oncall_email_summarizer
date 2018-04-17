@@ -1,9 +1,6 @@
 class EmailErrorMsg:
     '''
-    EmailErrorMsg contains message id,
-    message type
-    message content
-    message time
+    EmailErrorMsg
     '''
     msg_id = 0                      #email id
     content = ''                    #email content
@@ -14,7 +11,7 @@ class EmailErrorMsg:
     digest_content = ''              #email error digest 
 
     def __init__(self, id, msgcontent, subject, time):
-        
+
         def isErrorOrWarning(self, subject):
             if 'Cron <root@yay161>' in subject or 'Airflow alert:' in subject:
                 return True
@@ -23,7 +20,7 @@ class EmailErrorMsg:
 
         def findErrorType(self):
             if 'Cron <root@yay161>' in self.subject:
-                ret_err_type = 'Cron job failed'
+                ret_err_type = 'Cron_job_failed'
             elif 'Hadoop' in self.content or 'Hive' in self.content or 'Spark' in self.content:
                 ret_err_type = 'Hadoop/Hive/Spark'
             elif 'Flink' in self.content:
@@ -62,7 +59,7 @@ class EmailErrorMsg:
             return
     
     def display(self):
-        print('| Id:{3} | Time:{0} | Type:{1}| Subject:{2} |'.format(self.time, self.message_type, self.subject, self.msg_id))
+        print('| Id:{3} | Time:{0} | Type:{1}| Digest Content:{2} |'.format(self.time, self.message_type, self.digest_content, self.msg_id))
     
     def displayErrorContent(self):
         print('Id:{0} Error Content: {1}'.format(self.msg_id, self.content))
@@ -72,3 +69,6 @@ class EmailErrorMsg:
     
     def displayTime(self):
         print('Id:{0} Occur Time: {1}'.format(self.msg_id, self.time))
+
+    def getOneSummary(self):
+        return 'Time: '+str(self.time)+' | Digest Content: '+ self.digest_content
