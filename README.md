@@ -7,7 +7,7 @@ This tool renders and summarizes our oncall emails and then send the summary to 
 To use this, you need to have IMAPClient package installed:
 ```pip install imapclient```
 
-You also need to make one config file according to your own configuration in the same folder as main.py follow the format below:
+You also need to make one config file according to your own configuration follow the format below:
 
 ```
 IMAP:********
