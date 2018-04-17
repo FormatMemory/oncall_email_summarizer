@@ -14,11 +14,13 @@ class EmailErrorMsg:
     digest_content = ''              #email error digest 
 
     def __init__(self, id, msgcontent, subject, time):
+        
         def isErrorOrWarning(self, subject):
             if 'Cron <root@yay161>' in subject or 'Airflow alert:' in subject:
                 return True
             else:
                 return False
+
         def findErrorType(self):
             if 'Cron <root@yay161>' in self.subject:
                 ret_err_type = 'Cron job failed'
@@ -60,10 +62,13 @@ class EmailErrorMsg:
             return
     
     def display(self):
-        print('| Time:{0} | Type:{1}| Subject:{2} | Id:{3} |'.format(self.time, self.message_type, self.subject, self.msg_id))
+        print('| Id:{3} | Time:{0} | Type:{1}| Subject:{2} |'.format(self.time, self.message_type, self.subject, self.msg_id))
     
     def displayErrorContent(self):
         print('Id:{0} Error Content: {1}'.format(self.msg_id, self.content))
     
     def displayDigestContent(self):
         print('Id:{0} Digest Content: {1}'.format(self.msg_id, self.digest_content))
+    
+    def displayTime(self):
+        print('Id:{0} Occur Time: {1}'.format(self.msg_id, self.time))
