@@ -4,6 +4,10 @@ import datetime
 import time
 import email
 from EmailErrorMsg import EmailErrorMsg
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
 
 def getMsgContent(client, msgid):
     content = list()
@@ -48,7 +52,7 @@ def getOncallDays(endDay):
         oncallDays = 3
     return oncallDays
 
-def getErrorDict(config, error_since_date, emailSenders):
+def getErrorDict(config, error_since_date, emailSenders, currentTime):
     '''
     Read emails from specific email addresses and render error messages into a list of emailErrorMsg objects and return
     @Input config dictionary, error_since_date: the first day(time) of this oncall period, error msgs from which email address 
@@ -57,7 +61,7 @@ def getErrorDict(config, error_since_date, emailSenders):
     
     def getMsg(client, error_since_date, sender, SendType = 'From'):
         msg = client.search([SendType, sender, 'SINCE', error_since_date])
-        print("{0} messages from {1} From {2} To {3}".format(len(msg), sender, error_since_date.strftime ("%Y-%m-%d %H:%M:%S"), datetime.datetime.now().strftime ("%Y-%m-%d %H:%M:%S")))
+        print("{0} messages from {1} From {2} To {3}".format(len(msg), sender, error_since_date.strftime ("%Y-%m-%d %H:%M:%S"), currentTime.strftime ("%Y-%m-%d %H:%M:%S")))
         return msg
 
     errorDict = dict()
@@ -69,7 +73,7 @@ def getErrorDict(config, error_since_date, emailSenders):
     errorDict['promertheus_error'] = list()
     errorDict['jenkins_error'] = list()
     errorDict['airflow_error'] = list()
-    with IMAPClient(host=config['imap'],  use_uid=True) as client:
+    with IMAPClient(host=config['imap'],  port=config['imap_port'] ,use_uid=True, timeout=30) as client:
         client.login(config['username'], config['password'])
         select_info = client.select_folder('INBOX', readonly=True)
         #print(select_info)
@@ -108,8 +112,8 @@ def getErrorDict(config, error_since_date, emailSenders):
                         errorDict['airflow_error'].append(errObj)
     return errorDict
 
-def getErrorReport(errorDict, errorSinceTime):
-    report = '              Oncall Report: '+str(errorSinceTime)+' ~ '+str(datetime.datetime.now())+'\n'
+def getErrorReport(errorDict, errorSinceTime, currentTime):
+    report = '                          Oncall Report: '+errorSinceTime.strftime ("%Y-%m-%d %H:%M")+' ~ '+currentTime.strftime ("%Y-%m-%d %H:%M")+'\n\n\n'
     for errorType, errorList in errorDict.items():
         report += '* {0} Occured: {1} time(s)'.format(errorType ,len(errorDict[errorType])) + '\n'
         if len(errorDict[errorType])>0:
@@ -121,20 +125,43 @@ def getErrorReport(errorDict, errorSinceTime):
             report += '\n'
     return report
 
+def sendEmail(config, from_addr, to_addr, errorSinceTime, currentTime, summaryReport):
+    '''
+    send email from address 
+    '''
+    #sendMsg = dict()
+    with smtplib.SMTP(host=config['smtp'],port=config['smtp_port'], timeout=20) as sender:
+        sender.ehlo_or_helo_if_needed()
+        sender.starttls()
+        sender.login(config['username'], config['password'])
+        sendMsg = MIMEMultipart()
+        sendMsg['Subject'] = 'Oncall Summery From {0} To {1}'.format(errorSinceTime.strftime ("%Y-%m-%d %H:%M"),currentTime.strftime ("%Y-%m-%d %H:%M"))
+        sendMsg['From'] = from_addr
+        sendMsg['To'] = to_addr
+        sendMsg.attach(MIMEText(summaryReport, 'plain'))
+        text = sendMsg.as_string()
+        sender.sendmail(from_addr, to_addr, text)
+        sender.quit()
+    print('Email sent...')
+    
 def main():
     config = cr.readConfig('./emailconfig.txt')
-    last_N_days = getOncallDays(datetime.datetime.now()) #need to have a function to decide the time
+    currentTime = datetime.datetime.now()
+    last_N_days = getOncallDays(currentTime)
+
     if last_N_days == 1:
-        errorSinceTime = datetime.datetime.now() -  datetime.timedelta(days = last_N_days)
+        errorSinceTime = currentTime -  datetime.timedelta(days = last_N_days)
     else:
-        errorSinceTime = datetime.datetime.now() -  datetime.timedelta(days = last_N_days) + datetime.timedelta(hours = 10)
+        errorSinceTime = currentTime -  datetime.timedelta(days = last_N_days) + datetime.timedelta(hours = 10)
     errorSource = ['root@yay161.bjs.p1staff.com', 'data-ops@tantan.com']
-    errorDict = getErrorDict(config,errorSinceTime,errorSource)
-    summaryReport = getErrorReport(errorDict, errorSinceTime)
+    errorDict = getErrorDict(config,errorSinceTime,errorSource,currentTime)
+    summaryReport = getErrorReport(errorDict, errorSinceTime, currentTime)
     print(summaryReport)
-    ##send email
-    
-    
+    if last_N_days != 1:
+        sendEmail(config, 'david@p1.com', 'dingyusheng@p1.com', errorSinceTime, currentTime, summaryReport)
+    else:
+        #sendEmail(config, 'david@p1.com', 'dingyusheng@p1.com', errorSinceTime, currentTime, summaryReport)  #command this line if you want to send an email for only one day's report
+        print('Email not send...')
 
 
 if __name__ == "__main__":

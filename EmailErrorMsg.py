@@ -50,10 +50,10 @@ class EmailErrorMsg:
                 self.digest_content = self.content.split('\n')[0]
             else:
                 self.digest_content = subject
-                if '[up_for_retry]' in subject:
-                    self.message_type = 'Warning'
-                else:
+                if 'failed' in subject:
                     self.message_type = 'Error'
+                else:
+                    self.message_type = 'Warning'
                 
         else:
             return
