@@ -33,16 +33,25 @@ def isErrorOrWarning(subject):
     else:
         return False
 
-def oncallDays():
+def getOncallDays(endDay):
     '''
-    @return the oncall first day
+    To find how many days in the oncall period
+    Currently oncall days: Monday 10:00 AM - Friday 10:00 AM And Friday 10:00 AM - Monday 10:00 AM
+    @input the end day of an oncall period
+    @return the number of oncall days in this period, if the input is not a typical oncall day, 0 will be returned
     '''
-    pass
+    oncallDays = 0
+    weekday = endDay.weekday() #Sunday: 0, Monday: 1 etc.
+    if weekday == 1:
+        oncallDays = 5
+    elif weekday == 5:
+        oncallDays = 3
+    return oncallDays
  
 
 def main():
     config = cr.readConfig('./emailconfig.txt')
-    last_N_days = 7 #need to have a function to decide the time
+    last_N_days = getOncallDays(datetime.datetime.now()) #need to have a function to decide the time
     error_since_date = datetime.datetime.now() -  datetime.timedelta(days = last_N_days) + datetime.timedelta(hours = 10)
     error_dict = dict()
     # email_msgs_list = list()
