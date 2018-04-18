@@ -14,7 +14,7 @@ def getMsgContent(client, msgid):
     fetch_data = client.fetch(msgid, ['RFC822'])
     msg = email.message_from_bytes(fetch_data[msgid][b'RFC822'])
     for part in msg.walk():
-            #print(part.get_content_type())
+            #print(part.get_content_type()) #uncommand this line if you want to check conten_type
             if part.get_content_type() == 'text/plain' or part.get_content_type()== 'text/html': # ignore attachments/html  text/plain
                 body = part.get_payload(decode=True)
                 content.append(body.decode('utf-8'))
@@ -76,9 +76,8 @@ def getErrorDict(config, error_since_date, emailSenders, currentTime):
     with IMAPClient(host=config['imap'],  port=config['imap_port'] ,use_uid=True, timeout=30) as client:
         client.login(config['username'], config['password'])
         select_info = client.select_folder('INBOX', readonly=True)
-        #print(select_info)
         print('%d messages in INBOX' % select_info[b'EXISTS'])
-        #dataops_msg = client.search(['FROM', 'data-ops@tantan.com'])
+
         msg = list()
         for sender in emailSenders:
             msg += getMsg(client, error_since_date, sender, 'From')
@@ -91,8 +90,7 @@ def getErrorDict(config, error_since_date, emailSenders, currentTime):
             
             if isErrorOrWarning(envelope.subject.decode()):
                 errObj = EmailErrorMsg(msgid, msgContent, envelope.subject.decode(), envelope.date)
-                #errObj.display()
-                
+                #errObj.display()                #uncommand this line if you need to have every single errorObj printed             
                 if errObj.message_type == 'Error':
                     if errObj.error_type == 'Cron_job_failed':
                         errorDict['cron_error'].append(errObj)
@@ -129,7 +127,6 @@ def sendEmail(config, from_addr, to_addr, errorSinceTime, currentTime, summaryRe
     '''
     send email from address 
     '''
-    #sendMsg = dict()
     with smtplib.SMTP(host=config['smtp'],port=config['smtp_port'], timeout=20) as sender:
         sender.ehlo_or_helo_if_needed()
         sender.starttls()
@@ -160,7 +157,7 @@ def main():
     if last_N_days != 1:
         sendEmail(config, 'david@p1.com', 'dingyusheng@p1.com', errorSinceTime, currentTime, summaryReport)
     else:
-        #sendEmail(config, 'david@p1.com', 'dingyusheng@p1.com', errorSinceTime, currentTime, summaryReport)  #command this line if you want to send an email for only one day's report
+        #sendEmail(config, 'david@p1.com', 'dingyusheng@p1.com', errorSinceTime, currentTime, summaryReport)  #uncommand this line if you want to send an email for only one day's report
         print('Email not send...')
 
 
