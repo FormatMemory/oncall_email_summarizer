@@ -40,42 +40,45 @@ def getOncallDays(endDay):
     @input the end day of an oncall period
     @return the number of oncall days in this period, if the input is not a typical oncall day, 0 will be returned
     '''
-    oncallDays = 0
+    oncallDays = 1
     weekday = endDay.weekday() #Sunday: 0, Monday: 1 etc.
     if weekday == 1:
         oncallDays = 5
     elif weekday == 5:
         oncallDays = 3
     return oncallDays
- 
 
-def main():
-    config = cr.readConfig('./emailconfig.txt')
-    last_N_days = getOncallDays(datetime.datetime.now()) #need to have a function to decide the time
-    error_since_date = datetime.datetime.now() -  datetime.timedelta(days = last_N_days) + datetime.timedelta(hours = 10)
-    error_dict = dict()
-    # email_msgs_list = list()
-    error_dict['cron_error'] = list()
-    error_dict['hadoop_hive_hpark_error'] = list()
-    error_dict['flink_error'] = list()
-    error_dict['flume_error'] = list()
-    error_dict['presto_error'] = list()
-    error_dict['promertheus_error'] = list()
-    error_dict['jenkins_error'] = list()
-    error_dict['airflow_error'] = list()
+def getErrorDict(config, error_since_date, emailSenders):
+    '''
+    Read emails from specific email addresses and render error messages into a list of emailErrorMsg objects and return
+    @Input config dictionary, error_since_date: the first day(time) of this oncall period, error msgs from which email address 
+    @return a list of objects of EmailErrorMsg
+    '''
     
+    def getMsg(client, error_since_date, sender, SendType = 'From'):
+        msg = client.search([SendType, sender, 'SINCE', error_since_date])
+        print("{0} messages from {1} From {2} To {3}".format(len(msg), sender, error_since_date.strftime ("%Y-%m-%d %H:%M:%S"), datetime.datetime.now().strftime ("%Y-%m-%d %H:%M:%S")))
+        return msg
+
+    errorDict = dict()
+    errorDict['cron_error'] = list()
+    errorDict['hadoop_hive_hpark_error'] = list()
+    errorDict['flink_error'] = list()
+    errorDict['flume_error'] = list()
+    errorDict['presto_error'] = list()
+    errorDict['promertheus_error'] = list()
+    errorDict['jenkins_error'] = list()
+    errorDict['airflow_error'] = list()
     with IMAPClient(host=config['imap'],  use_uid=True) as client:
         client.login(config['username'], config['password'])
         select_info = client.select_folder('INBOX', readonly=True)
         #print(select_info)
-        #print('%d messages in INBOX' % select_info[b'EXISTS'])
+        print('%d messages in INBOX' % select_info[b'EXISTS'])
         #dataops_msg = client.search(['FROM', 'data-ops@tantan.com'])
-        dataops_msg = client.search(['FROM', 'data-ops@tantan.com', 'SINCE',error_since_date])
-        crontab_msg = client.search(['FROM', 'root@yay161.bjs.p1staff.com', 'SINCE',error_since_date])
-        msg = dataops_msg + crontab_msg
-        print("{0} cron_tab messages from data-ops@tantan.com From {1} To {2}".format(len(dataops_msg), error_since_date.strftime ("%Y-%m-%d %H:%M:%S"), datetime.datetime.now().strftime ("%Y-%m-%d %H:%M:%S")))
-        print("{0} airflow git messages from data-ops@tantan.com From {1} To {2}".format(len(crontab_msg), error_since_date.strftime ("%Y-%m-%d %H:%M:%S"), datetime.datetime.now().strftime ("%Y-%m-%d %H:%M:%S")))
-        #print(dataops_msg)
+        msg = list()
+        for sender in emailSenders:
+            msg += getMsg(client, error_since_date, sender, 'From')
+            msg += msg
         
         for msgid, data in client.fetch(msg, ['ENVELOPE']).items():
             envelope = data[b'ENVELOPE']
@@ -85,44 +88,52 @@ def main():
             if isErrorOrWarning(envelope.subject.decode()):
                 errObj = EmailErrorMsg(msgid, msgContent, envelope.subject.decode(), envelope.date)
                 #errObj.display()
-                #email_msgs_list.append(errObj)
+                
                 if errObj.message_type == 'Error':
                     if errObj.error_type == 'Cron_job_failed':
-                        error_dict['cron_error'].append(errObj)
-                    elif errObj.error_type == 'Hadoop/Hive/Spark':
-                        error_dict['hadoop_hive_hpark_error'].append(errObj)
+                        errorDict['cron_error'].append(errObj)
                     elif errObj.error_type == 'Flink':
-                        error_dict['flink_error'].append(errObj)
+                        errorDict['flink_error'].append(errObj)
                     elif errObj.error_type == 'Flume':
-                        error_dict['flume_error'].append(errObj)
+                        errorDict['flume_error'].append(errObj)
                     elif errObj.error_type == 'Presto':
-                        error_dict['presto_error'].append(errObj)
+                        errorDict['presto_error'].append(errObj)
                     elif errObj.error_type == 'Promertheus':
-                        error_dict['promertheus_error'].append(errObj)
+                        errorDict['promertheus_error'].append(errObj)
                     elif errObj.error_type == 'Jenkins':
-                        error_dict['jenkins_error'].append(errObj)
+                        errorDict['jenkins_error'].append(errObj)
+                    elif errObj.error_type == 'Hadoop/Hive/Spark':
+                        errorDict['hadoop_hive_hpark_error'].append(errObj)
                     elif errObj.error_type == 'Airflow':
-                        error_dict['airflow_error'].append(errObj)
-    for errorType, errorList in error_dict.items():
-        print('* {0} Error Occured: {1} time(s)'.format(errorType ,len(error_dict[errorType])))
-        if len(error_dict[errorType])>0:
-            print('    Error Message Digest:')
+                        errorDict['airflow_error'].append(errObj)
+    return errorDict
+
+def getErrorReport(errorDict, errorSinceTime):
+    report = '              Oncall Report: '+str(errorSinceTime)+' ~ '+str(datetime.datetime.now())+'\n'
+    for errorType, errorList in errorDict.items():
+        report += '* {0} Occured: {1} time(s)'.format(errorType ,len(errorDict[errorType])) + '\n'
+        if len(errorDict[errorType])>0:
+            report += '    Error Message Digest:' + '\n'
             count = 0
             for err in errorList:
                 count += 1
-                print('               [{0}] {1}'.format(count, err.getOneSummary()))
-            print('\n') 
-        #print('\n')
-            # if 'Airflow alert:' in envelope.subject.decode():
-            #     print('ID #%d: "%s" received %s' % (msgid, envelope.subject.decode(), envelope.date))
-            #     i = get_msg_content(client, msgid)
-            #     print(i)
-            #     print('\n\n\n\n\n\n')
-            # if 'Cron <root@yay161>' in envelope.subject.decode():
-            #     print('ID #%d: "%s" received %s' % (msgid, envelope.subject.decode(), envelope.date))
-            #     i = get_msg_content(client, msgid)
-            #     print(i)
-            #     print('\n\n\n\n\n\n')
+                report +='               [{0}] {1}'.format(count, err.getOneSummary()) +'\n'
+            report += '\n'
+    return report
+
+def main():
+    config = cr.readConfig('./emailconfig.txt')
+    last_N_days = getOncallDays(datetime.datetime.now()) #need to have a function to decide the time
+    if last_N_days == 1:
+        errorSinceTime = datetime.datetime.now() -  datetime.timedelta(days = last_N_days)
+    else:
+        errorSinceTime = datetime.datetime.now() -  datetime.timedelta(days = last_N_days) + datetime.timedelta(hours = 10)
+    errorSource = ['root@yay161.bjs.p1staff.com', 'data-ops@tantan.com']
+    errorDict = getErrorDict(config,errorSinceTime,errorSource)
+    summaryReport = getErrorReport(errorDict, errorSinceTime)
+    print(summaryReport)
+    ##send email
+    
     
 
 

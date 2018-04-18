@@ -19,20 +19,20 @@ class EmailErrorMsg:
                 return False
 
         def findErrorType(self):
-            if 'Cron <root@yay161>' in self.subject:
+            if 'Cron <root@' in self.subject:
                 ret_err_type = 'Cron_job_failed'
-            elif 'Hadoop' in self.content or 'Hive' in self.content or 'Spark' in self.content:
-                ret_err_type = 'Hadoop/Hive/Spark'
-            elif 'Flink' in self.content:
+            elif 'flink' in self.content:
                 ret_err_type = 'Flink'
-            elif 'Flume' in self.content:
+            elif 'flume' in self.content:
                 ret_err_type = 'Flume'
-            elif 'Presto' in self.content:
+            elif 'presto' in self.content:
                 ret_err_type = 'Presto'
-            elif 'Promertheus' in self.content:
+            elif 'promertheus' in self.content:
                 ret_err_type = 'Promertheus'
-            elif 'Jenkins' in self.content:
+            elif 'jenkins' in self.content:
                 ret_err_type = 'Jenkins'
+            elif 'hadoop' in self.content or 'hive' in self.content or 'spark' in self.content:
+                ret_err_type = 'Hadoop/Hive/Spark'
             else:
                 ret_err_type = 'Airflow'
             return ret_err_type
@@ -45,7 +45,7 @@ class EmailErrorMsg:
             self.subject = subject
             self.time = time
             self.error_type = findErrorType(self)
-            if 'Cron <root@yay161>' in subject:
+            if 'Cron <root@' in subject:
                 self.message_type = 'Error'
                 self.digest_content = self.content.split('\n')[0]
             else:
