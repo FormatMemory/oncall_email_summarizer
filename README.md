@@ -1,8 +1,10 @@
 # Oncall email summarizer
 
+To run this program: ```python oncall_summarizer.py```
 
-This tool renders and summarizes our oncall emails and then send the summary to a specific email address(group).
+Python 3.6 or above is needed
 
+This tool renders and summarizes our oncall emails and then sends the summary to a specific email address(group).
 
 To use this, you need to have IMAPClient package installed:
 ```pip install imapclient```
