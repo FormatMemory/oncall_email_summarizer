@@ -111,11 +111,11 @@ def getErrorDict(config, error_since_date, emailSenders, currentTime):
     return errorDict
 
 def getErrorReport(errorDict, errorSinceTime, currentTime):
-    report = '                          Oncall Report: '+errorSinceTime.strftime ("%Y-%m-%d %H:%M")+' ~ '+currentTime.strftime ("%Y-%m-%d %H:%M")+'\n\n\n'
+    report = '                                Oncall Report: '+errorSinceTime.strftime ("%Y-%m-%d %H:%M")+' ~ '+currentTime.strftime ("%Y-%m-%d %H:%M")+'\n\n\n'
     for errorType, errorList in errorDict.items():
-        report += '* {0} Occured: {1} time(s)'.format(errorType ,len(errorDict[errorType])) + '\n'
+        report += '* {0} occured: {1} time(s)'.format(errorType ,len(errorDict[errorType])) + '\n'
         if len(errorDict[errorType])>0:
-            report += '    Error Message Digest:' + '\n'
+            report += '     Error Message Digest:' + '\n'
             count = 0
             for err in errorList:
                 count += 1
@@ -142,7 +142,7 @@ def sendEmail(config, from_addr, to_addr, errorSinceTime, currentTime, summaryRe
     print('Email sent...')
     
 def main():
-    config = cr.readConfig('./emailconfig.txt')
+    config = cr.readConfig('./data_black_hole.txt')
     currentTime = datetime.datetime.now()
     last_N_days = getOncallDays(currentTime)
 
@@ -155,9 +155,9 @@ def main():
     summaryReport = getErrorReport(errorDict, errorSinceTime, currentTime)
     print(summaryReport)
     if last_N_days != 1:
-        sendEmail(config, 'david@p1.com', 'dingyusheng@p1.com', errorSinceTime, currentTime, summaryReport)
+        sendEmail(config, 'data-eng-blackhole@p1.com', 'data-eng@p1.com', errorSinceTime, currentTime, summaryReport)
     else:
-        #sendEmail(config, 'david@p1.com', 'dingyusheng@p1.com', errorSinceTime, currentTime, summaryReport)  #uncommand this line if you want to send an email for only one day's report
+        #sendEmail(config, 'data-eng-blackhole@p1.com', 'data-eng@p1.com', errorSinceTime, currentTime, summaryReport)  #uncommand this line if you want to send an email for only one day's report
         print('Email not send...')
 
 
