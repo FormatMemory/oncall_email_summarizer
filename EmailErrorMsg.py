@@ -13,7 +13,7 @@ class EmailErrorMsg:
     def __init__(self, id, msgcontent, subject, time):
 
         def isErrorOrWarning(self, subject):
-            if 'Cron <root@yay161>' in subject or 'Airflow alert:' in subject:
+            if 'Cron <root@yay161>' in subject or 'Airflow alert:' in subject or '[FIRING:' in subject:
                 return True
             else:
                 return False
@@ -21,14 +21,14 @@ class EmailErrorMsg:
         def findErrorType(self):
             if 'Cron <root@' in self.subject:
                 ret_err_type = 'Cron_job_failed'
+            elif '[FIRING' in self.subject:
+                ret_err_type = 'Promertheus'
             elif 'flink' in self.content:
                 ret_err_type = 'Flink'
             elif 'flume' in self.content:
                 ret_err_type = 'Flume'
             elif 'presto' in self.content:
                 ret_err_type = 'Presto'
-            elif 'promertheus' in self.content:
-                ret_err_type = 'Promertheus'
             elif 'jenkins' in self.content:
                 ret_err_type = 'Jenkins'
             elif 'hadoop' in self.content or 'hive' in self.content or 'spark' in self.content:
@@ -50,7 +50,7 @@ class EmailErrorMsg:
                 self.digest_content = self.content.split('\n')[0]
             else:
                 self.digest_content = subject
-                if 'failed' in subject:
+                if 'failed' in subject or '[FIRING' in subject:
                     self.message_type = 'Error'
                 else:
                     self.message_type = 'Warning'

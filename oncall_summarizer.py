@@ -32,7 +32,7 @@ def getMsgContent(client, msgid):
     return content
 
 def isErrorOrWarning(subject):
-    if 'Cron <root@yay161>' in subject or 'Airflow alert:' in subject:
+    if 'Cron <root@yay161>' in subject or 'Airflow alert:' in subject or '[FIRING:' in subject:
         return True
     else:
         return False
@@ -46,9 +46,9 @@ def getOncallDays(endDay):
     '''
     oncallDays = 1
     weekday = endDay.weekday() #Sunday: 0, Monday: 1 etc.
-    if weekday == 1:
-        oncallDays = 5
-    elif weekday == 5:
+    if weekday == 4:
+        oncallDays = 4
+    elif weekday == 0:
         oncallDays = 3
     return oncallDays
 
@@ -90,7 +90,7 @@ def getErrorDict(config, error_since_date, emailSenders, currentTime):
             
             if isErrorOrWarning(envelope.subject.decode()):
                 errObj = EmailErrorMsg(msgid, msgContent, envelope.subject.decode(), envelope.date)
-                #errObj.display()                #uncommand this line if you need to have every single errorObj printed             
+                errObj.display()                #uncommand this line if you need to have every single errorObj printed             
                 if errObj.message_type == 'Error':
                     if errObj.error_type == 'Cron_job_failed':
                         errorDict['cron_error'].append(errObj)
@@ -150,14 +150,14 @@ def main():
         errorSinceTime = currentTime -  datetime.timedelta(days = last_N_days)
     else:
         errorSinceTime = currentTime -  datetime.timedelta(days = last_N_days) + datetime.timedelta(hours = 10)
-    errorSource = ['root@yay161.bjs.p1staff.com', 'data-ops@tantan.com']
+    errorSource = ['root@yay161.bjs.p1staff.com', 'data-ops@tantan.com','prometheus@p1.com']
     errorDict = getErrorDict(config,errorSinceTime,errorSource,currentTime)
     summaryReport = getErrorReport(errorDict, errorSinceTime, currentTime)
     print(summaryReport)
-    if last_N_days != 1:
-        sendEmail(config, 'data-eng-blackhole@p1.com', 'data-eng@p1.com', errorSinceTime, currentTime, summaryReport)
+    if last_N_days == 1:
+        sendEmail(config, 'data-eng-blackhole@p1.com', 'david@p1.com', errorSinceTime, currentTime, summaryReport)
     else:
-        #sendEmail(config, 'data-eng-blackhole@p1.com', 'data-eng@p1.com', errorSinceTime, currentTime, summaryReport)  #uncommand this line if you want to send an email for only one day's report
+        #sendEmail(config, 'data-eng-blackhole@p1.com', 'david@p1.com', errorSinceTime, currentTime, summaryReport)  #uncommand this line if you want to send an email for only one day's report
         print('Email not send...')
 
 
