@@ -90,7 +90,7 @@ def getErrorDict(config, error_since_date, emailSenders, currentTime):
             
             if isErrorOrWarning(envelope.subject.decode()):
                 errObj = EmailErrorMsg(msgid, msgContent, envelope.subject.decode(), envelope.date)
-                errObj.display()                #uncommand this line if you need to have every single errorObj printed             
+                #errObj.display()                #uncommand this line if you need to have every single errorObj printed             
                 if errObj.message_type == 'Error':
                     if errObj.error_type == 'Cron_job_failed':
                         errorDict['cron_error'].append(errObj)
