@@ -31,8 +31,9 @@ def getMsgContent(client, msgid):
                 continue
     return content
 
-def isErrorOrWarning(subject):
-    if 'Cron <root@yay161>' in subject or 'Airflow alert:' in subject or '[FIRING:' in subject:
+def isErrorOrWarning(subject, content):
+    msg = subject.join(content)
+    if 'Cron <root@yay161>' in msg or 'Airflow alert:' in msg or '[FIRING:' in msg or 'PHP Fatal' in msg:
         return True
     else:
         return False
@@ -87,8 +88,7 @@ def getErrorDict(config, error_since_date, emailSenders, currentTime):
             envelope = data[b'ENVELOPE']
             contentList = getMsgContent(client, msgid)
             msgContent = ''.join(contentList)
-            
-            if isErrorOrWarning(envelope.subject.decode()):
+            if isErrorOrWarning(envelope.subject.decode('utf-8'), contentList):
                 errObj = EmailErrorMsg(msgid, msgContent, envelope.subject.decode(), envelope.date)
                 #errObj.display()                #uncommand this line if you need to have every single errorObj printed             
                 if errObj.message_type == 'Error':
@@ -146,16 +146,18 @@ def main():
     currentTime = datetime.datetime.now()
     last_N_days = getOncallDays(currentTime)
 
-    if last_N_days == 1:
-        errorSinceTime = currentTime -  datetime.timedelta(days = last_N_days)
-    else:
-        errorSinceTime = currentTime -  datetime.timedelta(days = last_N_days) + datetime.timedelta(hours = 10)
+    # if last_N_days == 1:
+    #     errorSinceTime = currentTime -  datetime.timedelta(days = last_N_days)
+    # else:
+    #     errorSinceTime = currentTime -  datetime.timedelta(days = last_N_days) + datetime.timedelta(hours = 10)
+    errorSinceTime = currentTime -  datetime.timedelta(days = last_N_days) - datetime.timedelta(days = 4)
     errorSource = ['root@yay161.bjs.p1staff.com', 'data-ops@tantan.com','prometheus@p1.com']
     errorDict = getErrorDict(config,errorSinceTime,errorSource,currentTime)
     summaryReport = getErrorReport(errorDict, errorSinceTime, currentTime)
     print(summaryReport)
     if last_N_days == 1:
         sendEmail(config, 'data-eng-blackhole@p1.com', 'david@p1.com', errorSinceTime, currentTime, summaryReport)
+        #print('Done...')
     else:
         #sendEmail(config, 'data-eng-blackhole@p1.com', 'david@p1.com', errorSinceTime, currentTime, summaryReport)  #uncommand this line if you want to send an email for only one day's report
         print('Email not send...')

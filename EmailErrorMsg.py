@@ -12,14 +12,8 @@ class EmailErrorMsg:
 
     def __init__(self, id, msgcontent, subject, time):
 
-        def isErrorOrWarning(self, subject):
-            if 'Cron <root@yay161>' in subject or 'Airflow alert:' in subject or '[FIRING:' in subject:
-                return True
-            else:
-                return False
-
         def findErrorType(self):
-            if 'Cron <root@' in self.subject:
+            if 'Cron <root@' in self.subject or 'PHP Fatal' in msgcontent:
                 ret_err_type = 'Cron_job_failed'
             elif '[FIRING' in self.subject:
                 ret_err_type = 'Promertheus'
@@ -37,26 +31,21 @@ class EmailErrorMsg:
                 ret_err_type = 'Airflow'
             return ret_err_type
 
-            
-
-        if isErrorOrWarning(self, subject):
-            self.msg_id = id
-            self.content = msgcontent
-            self.subject = subject
-            self.time = time
-            self.error_type = findErrorType(self)
-            if 'Cron <root@' in subject:
-                self.message_type = 'Error'
-                self.digest_content = self.content.split('\n')[0]
-            else:
-                self.digest_content = subject
-                if 'failed' in subject or '[FIRING' in subject:
-                    self.message_type = 'Error'
-                else:
-                    self.message_type = 'Warning'
-                
+    
+        self.msg_id = id
+        self.content = msgcontent
+        self.subject = subject
+        self.time = time
+        self.error_type = findErrorType(self)
+        if 'Cron <root@' in subject or 'PHP Fatal' in msgcontent:
+            self.message_type = 'Error'
+            self.digest_content = self.content.split('\n')[0]
         else:
-            return
+            self.digest_content = subject
+            if 'failed' in subject or '[FIRING' in subject:
+                self.message_type = 'Error'
+            else:
+                self.message_type = 'Warning'
     
     def display(self):
         print('| Id:{3} | Time:{0} | Type:{1}| Digest Content:{2} |'.format(self.time, self.message_type, self.digest_content, self.msg_id))
