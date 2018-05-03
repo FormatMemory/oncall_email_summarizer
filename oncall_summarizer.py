@@ -8,7 +8,6 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-
 def getMsgContent(client, msgid):
     content = list()
     fetch_data = client.fetch(msgid, ['RFC822'])
@@ -48,7 +47,7 @@ def getOncallDays(endDay):
     oncallDays = 1
     weekday = endDay.weekday() #Sunday: 0, Monday: 1 etc.
     if weekday == 4:
-        oncallDays = 4
+        oncallDays = 4  
     elif weekday == 0:
         oncallDays = 3
     return oncallDays
@@ -74,7 +73,7 @@ def getErrorDict(config, error_since_date, emailSenders, currentTime):
     errorDict['promertheus_error'] = list()
     errorDict['jenkins_error'] = list()
     errorDict['airflow_error'] = list()
-    with IMAPClient(host=config['imap'],  port=config['imap_port'] ,use_uid=True, timeout=30) as client:
+    with IMAPClient(host=config['imap'],  port=config['imap_port'] ,use_uid=True, timeout=2000) as client:
         client.login(config['username'], config['password'])
         select_info = client.select_folder('INBOX', readonly=True)
         print('%d messages in INBOX' % select_info[b'EXISTS'])
@@ -123,11 +122,108 @@ def getErrorReport(errorDict, errorSinceTime, currentTime):
             report += '\n'
     return report
 
-def sendEmail(config, from_addr, to_addr, errorSinceTime, currentTime, summaryReport):
+# def getHtmlAndTextErrorReport(errorDict, errorSinceTime, currentTime):
+#     '''
+#     Save error report into a specific dictionary tabulate(libary input format)
+#     'Oncall Report: 2018-04-28 10:00 ~ 2018-04-29 10:00'
+#     '''
+#     header = ["Error Type", "Occured Times", "Error Message Digest"]
+#     htmlReport = []
+#     for errorType, errorList in errorDict.items():
+#         errFirstLine = True
+#         for err in errorList:
+#             if errFirstLine:
+#                 curline = [errorType, len(errorDict[errorType]), ' ['+ str(err.getErrorTime()) +'] '+ err.getDigestContent() ]
+#                 errFirstLine = False
+#             else:
+#                 curline = ['  ', '  ', err.getDigestContent()]
+#             htmlReport.append(curline)
+    
+#     for li in htmlReport:
+#         print(li)
+#     #ret = tabulate(htmlReport,header,tablefmt='grid')
+#     print(ret)
+#     return ret
+
+            
+    #     htmlReport += '* {0} occured: {1} time(s)'.format(errorType ,len(errorDict[errorType])) + '\n'
+    #     if len(errorDict[errorType])>0:
+    #         report += '     Error Message Digest:' + '\n'
+    #         count = 0
+    #         for err in errorList:
+    #             count += 1
+    #             report +='               [{0}] {1}'.format(count, err.getOneSummary()) +'\n'
+    #         report += '\n'
+    # return report
+    # message = MIMEMultipart("alternative", None, [MIMEText(text), MIMEText(html,'html')]) 
+
+def getHtmlErrorReport(errorDict, errorSinceTime, currentTime):
+    '''
+    Save error report into a specific dictionary HTML(libary input format)
+    'Oncall Report: 2018-04-28 10:00 ~ 2018-04-29 10:00'
+    header = ["Error Type", "Occured Times", "Error Message Digest"]
+    '''
+    
+    # for errorType, errorList in errorDict.items():
+    #     errFirstLine = True
+    #     for err in errorList:
+    #         if errFirstLine:
+    #             curline = [errorType, len(errorDict[errorType]), ' ['+ str(err.getErrorTime()) +'] '+ err.getDigestContent() ]
+    #             errFirstLine = False
+    #         else:
+    #             curline = ['  ', '  ', err.getDigestContent()]
+    #         htmlReport.append(curline)
+    # HTML.table(header, header_row=htmlReport)
+    #htmlcode = HTML.table(htmlReport)
+    # for li in htmlReport:
+    #     print(li)
+    # ret = tabulate(htmlReport,header,tablefmt='grid')
+    htmlReport = ''
+    for errorType, errorList in errorDict.items():
+        errFirstLine = True
+        for err in errorList:
+            if errFirstLine:
+                curline = '<tr>'
+                curline += '<td>' + errorType + '</td>'
+                curline += '<td  width="30"  align="center">' + str(len(errorDict[errorType])) + '</td>'
+                curline += '<td align="center">' + str(err.getErrorTime()) + '</td>'
+                curline += '<td>' + err.getDigestContent() + '</td>'
+                curline += '</tr>'
+                errFirstLine = False
+            else:
+                curline = '<tr>'
+                curline += '<td>' + ' ' + '</td>'
+                curline += '<td width="30"  align="center">' + ' ' + '</td>'
+                curline += '<td align="center">' + str(err.getErrorTime()) + '</td>'
+                curline += '<td>' + err.getDigestContent() + '</td>'
+                curline += '</tr>'
+            htmlReport += curline
+    html = '''
+    <html>
+        <head></head>
+        <body>
+            <h1>Oncall Report: ''' + 'Oncall Summery From {0} To {1}'.format(errorSinceTime.strftime ("%Y-%m-%d %H:%M"),currentTime.strftime ("%Y-%m-%d %H:%M"))+ '''</h1>
+            <table border="1">
+                <tr>
+                    <td>Error Type</td>
+                    <td width="30"  align="center">Occured Times</td>
+                    <td align="center">Occured Time</td>
+                    <td>Error Message Digest</td>
+                </tr>
+                '''+htmlReport+'''
+            </table>
+        </body>
+    </html>
+    '''
+    ret = html
+    print(ret)
+    return ret
+
+def sendEmail(config, from_addr, to_addr, errorSinceTime, currentTime, summaryReport, isHTML = False):
     '''
     send email from address 
     '''
-    with smtplib.SMTP(host=config['smtp'],port=config['smtp_port'], timeout=20) as sender:
+    with smtplib.SMTP(host=config['smtp'],port=config['smtp_port'], timeout=2000) as sender:
         sender.ehlo_or_helo_if_needed()
         sender.starttls()
         sender.login(config['username'], config['password'])
@@ -135,7 +231,11 @@ def sendEmail(config, from_addr, to_addr, errorSinceTime, currentTime, summaryRe
         sendMsg['Subject'] = 'Oncall Summery From {0} To {1}'.format(errorSinceTime.strftime ("%Y-%m-%d %H:%M"),currentTime.strftime ("%Y-%m-%d %H:%M"))
         sendMsg['From'] = from_addr
         sendMsg['To'] = to_addr
-        sendMsg.attach(MIMEText(summaryReport, 'plain'))
+        if isHTML:
+             emailContent = MIMEText(summaryReport, 'html')
+        else:
+             emailContent = MIMEText(summaryReport, 'plain')
+        sendMsg.attach(emailContent)
         text = sendMsg.as_string()
         sender.sendmail(from_addr, to_addr, text)
         sender.quit()
@@ -143,6 +243,7 @@ def sendEmail(config, from_addr, to_addr, errorSinceTime, currentTime, summaryRe
     
 def main():
     config = cr.readConfig('./data_black_hole.txt')
+    #config = cr.readConfig('./emailconfig.txt')
     currentTime = datetime.datetime.now()
     last_N_days = getOncallDays(currentTime)
 
@@ -150,16 +251,19 @@ def main():
     #     errorSinceTime = currentTime -  datetime.timedelta(days = last_N_days)
     # else:
     #     errorSinceTime = currentTime -  datetime.timedelta(days = last_N_days) + datetime.timedelta(hours = 10)
-    errorSinceTime = currentTime -  datetime.timedelta(days = last_N_days) - datetime.timedelta(days = 4)
+    errorSinceTime = currentTime -  datetime.timedelta(days = last_N_days) - datetime.timedelta(days = 7)
     errorSource = ['root@yay161.bjs.p1staff.com', 'data-ops@tantan.com','prometheus@p1.com']
     errorDict = getErrorDict(config,errorSinceTime,errorSource,currentTime)
-    summaryReport = getErrorReport(errorDict, errorSinceTime, currentTime)
-    print(summaryReport)
+    #summaryReport = getErrorReport(errorDict, errorSinceTime, currentTime)
+    summaryReport2 = getHtmlErrorReport(errorDict, errorSinceTime, currentTime)
+    print(summaryReport2)
+    #print(summaryReport)
     if last_N_days == 1:
-        sendEmail(config, 'data-eng-blackhole@p1.com', 'david@p1.com', errorSinceTime, currentTime, summaryReport)
+        sendEmail(config, 'data-eng-blackhole@p1.com', 'david@p1.com', errorSinceTime, currentTime, summaryReport2,isHTML = True)
+        #sendEmail(config, 'david@p1.com', 'david@p1.com', errorSinceTime, currentTime, summaryReport2)
         #print('Done...')
     else:
-        #sendEmail(config, 'data-eng-blackhole@p1.com', 'david@p1.com', errorSinceTime, currentTime, summaryReport)  #uncommand this line if you want to send an email for only one day's report
+        sendEmail(config, 'data-eng-blackhole@p1.com', 'david@p1.com', errorSinceTime, currentTime, summaryReport2, isHTML = True)  #uncommand this line if you want to send an email for only one day's report
         print('Email not send...')
 
 

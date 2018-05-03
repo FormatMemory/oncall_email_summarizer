@@ -61,3 +61,9 @@ class EmailErrorMsg:
 
     def getOneSummary(self):
         return ' '+str(self.time)+' ||  '+ self.digest_content
+
+    def getDigestContent(self):
+        return self.digest_content
+        
+    def getErrorTime(self):
+        return self.time
