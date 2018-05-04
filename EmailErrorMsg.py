@@ -1,3 +1,4 @@
+import re
 class EmailErrorMsg:
     '''
     EmailErrorMsg
@@ -63,7 +64,7 @@ class EmailErrorMsg:
         return ' '+str(self.time)+' ||  '+ self.digest_content
 
     def getDigestContent(self):
-        return self.digest_content
+        return re.sub(r'[^a-zA-Z0-9 ]',r'',self.digest_content)
         
     def getErrorTime(self):
         return self.time

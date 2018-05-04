@@ -31,8 +31,8 @@ def getMsgContent(client, msgid):
     return content
 
 def isErrorOrWarning(subject, content):
-    msg = subject.join(content)
-    if 'Cron <root@yay161>' in msg or 'Airflow alert:' in msg or '[FIRING:' in msg or 'PHP Fatal' in msg:
+    msg = ''.join(content) + subject
+    if 'Cron <root@yay161>' in msg or 'Airflow alert' in msg or '[FIRING' in msg or 'PHP Fatal' in msg:
         return True
     else:
         return False
@@ -89,7 +89,7 @@ def getErrorDict(config, error_since_date, emailSenders, currentTime):
             msgContent = ''.join(contentList)
             if isErrorOrWarning(envelope.subject.decode('utf-8'), contentList):
                 errObj = EmailErrorMsg(msgid, msgContent, envelope.subject.decode(), envelope.date)
-                #errObj.display()                #uncommand this line if you need to have every single errorObj printed             
+                errObj.display()                #uncommand this line if you need to have every single errorObj printed             
                 if errObj.message_type == 'Error':
                     if errObj.error_type == 'Cron_job_failed':
                         errorDict['cron_error'].append(errObj)
@@ -122,62 +122,12 @@ def getErrorReport(errorDict, errorSinceTime, currentTime):
             report += '\n'
     return report
 
-# def getHtmlAndTextErrorReport(errorDict, errorSinceTime, currentTime):
-#     '''
-#     Save error report into a specific dictionary tabulate(libary input format)
-#     'Oncall Report: 2018-04-28 10:00 ~ 2018-04-29 10:00'
-#     '''
-#     header = ["Error Type", "Occured Times", "Error Message Digest"]
-#     htmlReport = []
-#     for errorType, errorList in errorDict.items():
-#         errFirstLine = True
-#         for err in errorList:
-#             if errFirstLine:
-#                 curline = [errorType, len(errorDict[errorType]), ' ['+ str(err.getErrorTime()) +'] '+ err.getDigestContent() ]
-#                 errFirstLine = False
-#             else:
-#                 curline = ['  ', '  ', err.getDigestContent()]
-#             htmlReport.append(curline)
-    
-#     for li in htmlReport:
-#         print(li)
-#     #ret = tabulate(htmlReport,header,tablefmt='grid')
-#     print(ret)
-#     return ret
-
-            
-    #     htmlReport += '* {0} occured: {1} time(s)'.format(errorType ,len(errorDict[errorType])) + '\n'
-    #     if len(errorDict[errorType])>0:
-    #         report += '     Error Message Digest:' + '\n'
-    #         count = 0
-    #         for err in errorList:
-    #             count += 1
-    #             report +='               [{0}] {1}'.format(count, err.getOneSummary()) +'\n'
-    #         report += '\n'
-    # return report
-    # message = MIMEMultipart("alternative", None, [MIMEText(text), MIMEText(html,'html')]) 
-
 def getHtmlErrorReport(errorDict, errorSinceTime, currentTime):
     '''
     Save error report into html format
     'Oncall Report: 2018-04-28 10:00 ~ 2018-04-29 10:00'
     header = ["Error Type", "Occured Times", "Occured Time", "Error Message Digest"]
     '''
-    
-    # for errorType, errorList in errorDict.items():
-    #     errFirstLine = True
-    #     for err in errorList:
-    #         if errFirstLine:
-    #             curline = [errorType, len(errorDict[errorType]), ' ['+ str(err.getErrorTime()) +'] '+ err.getDigestContent() ]
-    #             errFirstLine = False
-    #         else:
-    #             curline = ['  ', '  ', err.getDigestContent()]
-    #         htmlReport.append(curline)
-    # HTML.table(header, header_row=htmlReport)
-    #htmlcode = HTML.table(htmlReport)
-    # for li in htmlReport:
-    #     print(li)
-    # ret = tabulate(htmlReport,header,tablefmt='grid')
     htmlReport = ''
     for errorType, errorList in errorDict.items():
         errFirstLine = True
