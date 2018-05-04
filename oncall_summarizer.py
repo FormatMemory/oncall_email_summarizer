@@ -32,7 +32,7 @@ def getMsgContent(client, msgid):
 
 def isErrorOrWarning(subject, content):
     msg = ''.join(content) + subject
-    if 'Cron <root@yay161>' in msg or 'Airflow alert' in msg or '[FIRING' in msg or 'PHP Fatal' in msg:
+    if 'Cron <root@yay161>' in msg or 'Airflow alert' in msg or '[FIRING' in msg or 'PHP Fatal' in msg or 'flume backup kafka data is abnormal' in msg:
         return True
     else:
         return False
