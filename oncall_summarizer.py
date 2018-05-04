@@ -132,42 +132,42 @@ def getHtmlErrorReport(errorDict, errorSinceTime, currentTime):
     for errorType, errorList in errorDict.items():
         errFirstLine = True
         if not errorList:
-            curline = '<tr>'
-            curline += '<td>' + errorType + '</td>'
-            curline += '<td  width="30"  align="center">' + '0' + '</td>'
-            curline += '<td align="center">' + 'X' + '</td>'
-            curline += '<td align="center">' + '' + '</td>'
-            curline += '</tr>'
+            curline = ' <tr> '
+            curline += ' <td> ' + errorType + ' </td> '
+            curline += ' <td  width="30"  align="center"> ' + ' 0 ' + ' </td> '
+            curline += ' <td align="center"> ' + ' X ' + ' </td> '
+            curline += ' <td align="center"> ' + '  ' + '</td>'
+            curline += ' </tr> '
             htmlReport += curline
         else:
             for err in errorList:
                 if errFirstLine:
-                    curline = '<tr>'
-                    curline += '<td>' + errorType + '</td>'
-                    curline += '<td  width="30"  align="center">' + str(len(errorDict[errorType])) + '</td>'
-                    curline += '<td align="center">' + str(err.getErrorTime()) + '</td>'
-                    curline += '<td>' + err.getDigestContent() + '</td>'
-                    curline += '</tr>'
+                    curline = ' <tr> '
+                    curline += ' <td> ' + errorType + ' </td> '
+                    curline += ' <td  width="30"  align="center"> ' + str(len(errorDict[errorType])) + ' </td> '
+                    curline += ' <td align="center"> ' + str(err.getErrorTime()) + ' </td> '
+                    curline += ' <td> ' + err.getDigestContent() + ' </td> '
+                    curline += ' </tr> '
                     errFirstLine = False
                 else:
-                    curline = '<tr>'
-                    curline += '<td>' + ' ' + '</td>'
-                    curline += '<td width="30"  align="center">' + ' ' + '</td>'
-                    curline += '<td align="center">' + str(err.getErrorTime()) + '</td>'
-                    curline += '<td>' + err.getDigestContent() + '</td>'
-                    curline += '</tr>'
+                    curline = ' <tr> '
+                    curline += ' <td>' + ' ' + ' </td> '
+                    curline += ' <td width="30"  align="center"> ' + ' ' + ' </td> '
+                    curline += ' <td align="center"> ' + str(err.getErrorTime()) + ' </td> '
+                    curline += ' <td> ' + err.getDigestContent() + ' </td> '
+                    curline +=  ' </tr> '
                 htmlReport += curline
     html = '''
     <html>
         <head></head>
         <body>
             <h1 align="center">Oncall Report: ''' + 'Oncall Summery From {0} To {1}'.format(errorSinceTime.strftime("%Y-%m-%d %H:%M"),currentTime.strftime("%Y-%m-%d %H:%M"))+ '''</h1>
-            <table border="1">
+            <table border="1" align="center">
                 <tr>
-                    <td align="center"><strong>Error Type</strong></td>
-                    <td width="30"  align="center"><strong>Occured Times</strong></td>
-                    <td align="center"><strong>Occured Time</strong></td>
-                    <td align="center"><strong>Error Message Digest</strong></td>
+                    <td align="center"> <strong>Error Type</strong> </td>
+                    <td width="30"  align="center"> <strong>Occured Times</strong> </td>
+                    <td align="center"> <strong>Occured Time</strong> </td>
+                    <td align="center"> <strong>Error Message Digest</strong> </td>
                 </tr>
                 '''+htmlReport+'''
             </table>
@@ -210,7 +210,8 @@ def main():
     #     errorSinceTime = currentTime -  datetime.timedelta(days = last_N_days)
     # else:
     #     errorSinceTime = currentTime -  datetime.timedelta(days = last_N_days) + datetime.timedelta(hours = 10)
-    errorSinceTime = currentTime -  datetime.timedelta(days = last_N_days) - datetime.timedelta(days = 5)
+    #errorSinceTime = currentTime -  datetime.timedelta(days = last_N_days) - datetime.timedelta(days = 5)
+    errorSinceTime = currentTime -  datetime.timedelta(days = last_N_days)
     errorSource = ['root@yay161.bjs.p1staff.com', 'data-ops@tantan.com','prometheus@p1.com']
     errorDict = getErrorDict(config,errorSinceTime,errorSource,currentTime)
     #summaryReport = getErrorReport(errorDict, errorSinceTime, currentTime)
@@ -220,7 +221,7 @@ def main():
     if last_N_days == 1:
         sendEmail(config, 'data-eng-blackhole@p1.com', 'david@p1.com', errorSinceTime, currentTime, summaryReport2,isHTML = True)
         #sendEmail(config, 'david@p1.com', 'david@p1.com', errorSinceTime, currentTime, summaryReport2)
-        #print('Done...')
+        print('Done...')
     else:
         sendEmail(config, 'data-eng-blackhole@p1.com', 'david@p1.com', errorSinceTime, currentTime, summaryReport2, isHTML = True)  #uncommand this line if you want to send an email for only one day's report
         print('Email not send...')

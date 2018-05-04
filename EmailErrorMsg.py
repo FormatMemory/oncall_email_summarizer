@@ -43,10 +43,10 @@ class EmailErrorMsg:
             self.digest_content = self.content.split('\n')[0]
         else:
             self.digest_content = subject
-            if 'failed' in subject or '[FIRING' in subject:
-                self.message_type = 'Error'
-            else:
+            if 'up_for_retry' in subject:
                 self.message_type = 'Warning'
+            else:
+                self.message_type = 'Error'
     
     def display(self):
         print('| Id:{3} | Time:{0} | Type:{1}| Digest Content:{2} |'.format(self.time, self.message_type, self.digest_content, self.msg_id))
