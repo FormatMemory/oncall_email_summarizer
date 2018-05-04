@@ -64,7 +64,7 @@ class EmailErrorMsg:
         return ' '+str(self.time)+' ||  '+ self.digest_content
 
     def getDigestContent(self):
-        return re.sub(r'[^a-zA-Z0-9 ]',r'',self.digest_content)
+        return re.sub(r'[^a-zA-Z0-9_: ]',r'',self.digest_content)
         
     def getErrorTime(self):
-        return self.time
+        return self.time.strftime('{%Y-%m-%d %H:%M:%S}')
