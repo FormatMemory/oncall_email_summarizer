@@ -160,9 +160,21 @@ def getHtmlErrorReport(errorDict, errorSinceTime, currentTime):
     html = '''
     <html>
         <head></head>
+        <style>
+            table, tr, th, td {
+                border: 1px solid black;
+            }
+            table {
+                border-collapse: collapse;
+                width: 100%;
+            }
+            tr,th,td {
+                height: 35px;
+            }
+        </style>
         <body>
             <h1 align="center">Oncall Report: ''' + 'Oncall Summery From {0} To {1}'.format(errorSinceTime.strftime("%Y-%m-%d %H:%M"),currentTime.strftime("%Y-%m-%d %H:%M"))+ '''</h1>
-            <table border="1" align="center">
+            <table align="center" style="width:100%">
                 <tr>
                     <td align="center"> <strong>Error Type</strong> </td>
                     <td width="30"  align="center"> <strong>Occured Times</strong> </td>
