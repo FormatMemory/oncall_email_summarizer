@@ -132,30 +132,30 @@ def getHtmlErrorReport(errorDict, errorSinceTime, currentTime):
     for errorType, errorList in errorDict.items():
         errFirstLine = True
         if not errorList:
-            curline = ' <tr> '
-            curline += ' <td> ' + errorType + ' </td> '
-            curline += ' <td  width="30"  align="center"> ' + ' 0 ' + ' </td> '
-            curline += ' <td align="center"> ' + ' X ' + ' </td> '
-            curline += ' <td align="center"> ' + '  ' + '</td>'
-            curline += ' </tr> '
+            curline = ' <tr> \n'
+            curline += ' <td> ' + errorType + ' </td> \n'
+            curline += ' <td  width="30"  align="center"> ' + ' 0 ' + ' </td> \n'
+            curline += ' <td align="center"> ' + ' X ' + ' </td> \n'
+            curline += ' <td align="center"> ' + '  ' + '</td> \n'
+            curline += ' </tr> \n'
             htmlReport += curline
         else:
             for err in errorList:
                 if errFirstLine:
-                    curline = ' <tr> '
-                    curline += ' <td> ' + errorType + ' </td> '
-                    curline += ' <td  width="30"  align="center"> ' + str(len(errorDict[errorType])) + ' </td> '
-                    curline += ' <td align="center"> ' + str(err.getErrorTime()) + ' </td> '
-                    curline += ' <td> ' + err.getDigestContent() + ' </td> '
-                    curline += ' </tr> '
+                    curline = ' <tr> \n'
+                    curline += ' <td> ' + errorType + ' </td> \n'
+                    curline += ' <td  width="30"  align="center"> ' + str(len(errorDict[errorType])) + ' </td> \n'
+                    curline += ' <td align="center"> ' + str(err.getErrorTime()) + ' </td> \n'
+                    curline += ' <td> ' + err.getDigestContent() + ' </td> \n'
+                    curline += ' </tr> \n'
                     errFirstLine = False
                 else:
-                    curline = ' <tr> '
-                    curline += ' <td>' + ' ' + ' </td> '
-                    curline += ' <td width="30"  align="center"> ' + ' ' + ' </td> '
-                    curline += ' <td align="center"> ' + str(err.getErrorTime()) + ' </td> '
-                    curline += ' <td> ' + err.getDigestContent() + ' </td> '
-                    curline +=  ' </tr> '
+                    curline = ' <tr> \n'
+                    curline += ' <td>' + ' ' + ' </td> \n'
+                    curline += ' <td width="30"  align="center"> ' + ' ' + ' </td> \n'
+                    curline += ' <td align="center"> ' + str(err.getErrorTime()) + ' </td> \n'
+                    curline += ' <td> ' + err.getDigestContent() + ' </td> \n'
+                    curline +=  ' </tr> \n'
                 htmlReport += curline
     html = '''
     <html>

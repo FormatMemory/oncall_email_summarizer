@@ -1,0 +1,108 @@
+<html>
+        <head></head>
+        <style>
+            table, tr, th, td {
+                border: 1px solid black;
+            }
+            table {
+                border-collapse: collapse;
+                width: 100%;
+            }
+            tr,th,td {
+                height: 35px;
+            }
+        </style>
+        <body>
+            <h1 align="center">Oncall Report: Oncall Summery From 2018-05-08 15:35 To 2018-05-09 15:35</h1>
+            <table align="center" style="width:100%">
+                <tr>
+                    <td align="center"> <strong>Error Type</strong> </td>
+                    
+                    <td width="30"  align="center"> <strong>Occured Times</strong> </td>
+                    
+                    <td align="center"> <strong>Occured Time</strong> </td>
+                    
+                    <td align="center"> <strong>Error Message Digest</strong> </td>
+                </tr>
+                 <tr>  <td> cron_error </td>  <td  width="30"  align="center"> 1 </td>  <td align="center"> {2018-05-08 00:06:51} </td>
+                      <td> ERROR:  duplicate key value violates unique constraint core_users_pkey </td>
+                  </tr>  <tr>  <td> hadoop_hive_hpark_error </td>
+                      <td  width="30"  align="center">  0  </td>
+                      <td align="center">  X  </td>
+                      <td align="center">   </td>
+                 </tr>  <tr>  <td> flink_error </td>
+                      <td  width="30"  align="center">  0  </td>
+                      <td align="center">  X  </td>
+                      <td align="center">   </td>
+                 </tr>  <tr>  <td> flume_error </td>
+                      <td  width="30"  align="center"> 4 </td>
+                      <td align="center"> {2018-05-08 03:30:05} </td>
+                      <td> WARN flume backup kafka data is abnormal </td>
+                  </tr>  <tr>  <td>  </td>
+                      <td width="30"  align="center">   </td>
+                      <td align="center"> {2018-05-08 03:30:11} </td>
+                      <td> WARN flume backup kafka data is abnormal </td>
+                  </tr>  <tr>  <td>  </td>
+                      <td width="30"  align="center">   </td>
+                      <td align="center"> {2018-05-08 03:30:15} </td>
+                      <td> WARN flume backup kafka data is abnormal </td>
+                  </tr>  <tr>  <td>  </td>
+                      <td width="30"  align="center">   </td>
+                      <td align="center"> {2018-05-08 03:30:22} </td>
+                      <td> WARN flume backup kafka data is abnormal </td>
+                  </tr>  <tr>  <td> presto_error </td>
+                      <td  width="30"  align="center">  0  </td>
+                      <td align="center">  X  </td>
+                      <td align="center">   </td>
+                 </tr>  <tr>  <td> promertheus_error </td>
+                      <td  width="30"  align="center"> 8 </td>
+                      <td align="center"> {2018-05-08 19:23:54} </td>
+                      <td> FIRING:1 Datalake_hdfs_DeadDataNode monitor datalake_cluster bjs dataeng P1 </td>
+                  </tr>  <tr>  <td>  </td>
+                      <td width="30"  align="center">   </td>
+                      <td align="center"> {2018-05-08 19:24:55} </td>
+                      <td> FIRING:1 Datalake_yarn_NodeLost monitor datalake_cluster bjs dataeng P1 </td>
+                  </tr>  <tr>  <td>  </td>
+                      <td width="30"  align="center">   </td>
+                      <td align="center"> {2018-05-08 23:23:54} </td>
+                      <td> FIRING:1 Datalake_hdfs_DeadDataNode monitor datalake_cluster bjs dataeng P1 </td>
+                  </tr>  <tr>  <td>  </td>
+                      <td width="30"  align="center">   </td>
+                      <td align="center"> {2018-05-08 23:24:55} </td>
+                      <td> FIRING:1 Datalake_yarn_NodeLost monitor datalake_cluster bjs dataeng P1 </td>
+                  </tr>  <tr>  <td>  </td>
+                      <td width="30"  align="center">   </td>
+                      <td align="center"> {2018-05-09 03:23:54} </td>
+                      <td> FIRING:1 Datalake_hdfs_DeadDataNode monitor datalake_cluster bjs dataeng P1 </td>
+                  </tr>  <tr>  <td>  </td>
+                      <td width="30"  align="center">   </td>
+                      <td align="center"> {2018-05-09 03:24:55} </td>
+                      <td> FIRING:1 Datalake_yarn_NodeLost monitor datalake_cluster bjs dataeng P1 </td>
+                  </tr>  <tr>  <td>  </td>
+                      <td width="30"  align="center">   </td>
+                      <td align="center"> {2018-05-09 07:23:54} </td>
+                      <td> FIRING:1 Datalake_hdfs_DeadDataNode monitor datalake_cluster bjs dataeng P1 </td>
+                  </tr>  <tr>  <td>  </td>
+                      <td width="30"  align="center">   </td>
+                      <td align="center"> {2018-05-09 07:24:55} </td>
+                      <td> FIRING:1 Datalake_yarn_NodeLost monitor datalake_cluster bjs dataeng P1 </td>
+                  </tr>  <tr>  <td> jenkins_error </td>
+                      <td  width="30"  align="center">  0  </td>
+                      <td align="center">  X  </td>
+                      <td align="center">   </td>
+                 </tr>  <tr>  <td> airflow_error </td>
+                      <td  width="30"  align="center"> 3 </td>
+                      <td align="center"> {2018-05-08 11:32:16} </td>
+                      <td> Airflow alert: TaskInstance: tantan_android_market_crawler_dailytantan_android_market_crawler 20180507T11:20:0008:00 failed </td>
+                  </tr>  <tr>  <td>  </td>
+                      <td width="30"  align="center">   </td>
+                      <td align="center"> {2018-05-08 19:45:59} </td>
+                      <td> Airflow alert: TaskInstance: etl_putong_ods_dwd_event_logetl_putong_ods_dwd_event_log 20180508T18:10:0008:00 failed </td>
+                  </tr>  <tr>  <td>  </td>
+                      <td width="30"  align="center">   </td>
+                      <td align="center"> {2018-05-09 11:32:16} </td>
+                      <td> Airflow alert: TaskInstance: tantan_android_market_crawler_dailytantan_android_market_crawler 20180508T11:20:0008:00 failed </td>
+                  </tr>
+            </table>
+        </body>
+    </html>
