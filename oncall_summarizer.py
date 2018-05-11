@@ -129,34 +129,36 @@ def getHtmlErrorReport(errorDict, errorSinceTime, currentTime):
     header = ["Error Type", "Occured Times", "Occured Time", "Error Message Digest"]
     '''
     htmlReport = ''
+    table_tr_td_style = "style='border:1px solid black; border-collapse:collapse; height: 35px;'"  #gmail removes css style so here write table styles inline
     for errorType, errorList in errorDict.items():
         errFirstLine = True
         if not errorList:
-            curline = ' <tr> \n'
-            curline += ' <td> ' + errorType + ' </td> \n'
-            curline += ' <td  width="30"  align="center"> ' + ' 0 ' + ' </td> \n'
-            curline += ' <td align="center"> ' + ' X ' + ' </td> \n'
-            curline += ' <td align="center"> ' + '  ' + '</td> \n'
+            curline = ' <tr  '+table_tr_td_style+'> \n'
+            curline += ' <td  align="center" '+table_tr_td_style+'> ' + errorType + ' </td> \n'
+            curline += ' <td  width="30"  align="center"  '+table_tr_td_style+'> ' + ' 0 ' + ' </td> \n'
+            curline += ' <td align="center"  '+table_tr_td_style+'> ' + ' X ' + ' </td> \n'
+            curline += ' <td align="center"  '+table_tr_td_style+'> ' + '  ' + '</td> \n'
             curline += ' </tr> \n'
             htmlReport += curline
         else:
             for err in errorList:
                 if errFirstLine:
-                    curline = ' <tr> \n'
-                    curline += ' <td> ' + errorType + ' </td> \n'
-                    curline += ' <td  width="30"  align="center"> ' + str(len(errorDict[errorType])) + ' </td> \n'
-                    curline += ' <td align="center"> ' + str(err.getErrorTime()) + ' </td> \n'
-                    curline += ' <td> ' + err.getDigestContent() + ' </td> \n'
+                    curline = ' <tr  '+table_tr_td_style+'> \n'
+                    curline += ' <td  align="center" '+table_tr_td_style+'> ' + errorType + ' </td> \n'
+                    curline += ' <td  width="30"  align="center"  '+table_tr_td_style+'> ' + str(len(errorDict[errorType])) + ' </td> \n'
+                    curline += ' <td align="center"  '+table_tr_td_style+'> ' + str(err.getErrorTime()) + ' </td> \n'
+                    curline += ' <td  '+table_tr_td_style+'> ' + err.getDigestContent() + ' </td> \n'
                     curline += ' </tr> \n'
                     errFirstLine = False
                 else:
-                    curline = ' <tr> \n'
-                    curline += ' <td>' + ' ' + ' </td> \n'
-                    curline += ' <td width="30"  align="center"> ' + ' ' + ' </td> \n'
-                    curline += ' <td align="center"> ' + str(err.getErrorTime()) + ' </td> \n'
-                    curline += ' <td> ' + err.getDigestContent() + ' </td> \n'
+                    curline = ' <tr '+table_tr_td_style+'> \n'
+                    curline += ' <td  align="center" '+table_tr_td_style+'>' + ' ' + ' </td> \n'
+                    curline += ' <td width="30"  align="center" '+table_tr_td_style+'> ' + ' ' + ' </td> \n'
+                    curline += ' <td align="center" '+table_tr_td_style+'> ' + str(err.getErrorTime()) + ' </td> \n'
+                    curline += ' <td '+table_tr_td_style+'> ' + err.getDigestContent() + ' </td> \n'
                     curline +=  ' </tr> \n'
                 htmlReport += curline
+
     html = '''
     <html>
         <head></head>
@@ -173,13 +175,14 @@ def getHtmlErrorReport(errorDict, errorSinceTime, currentTime):
             }
         </style>
         <body>
-            <h1 align="center">Oncall Report: ''' + 'Oncall Summery From {0} To {1}'.format(errorSinceTime.strftime("%Y-%m-%d %H:%M"),currentTime.strftime("%Y-%m-%d %H:%M"))+ '''</h1>
-            <table align="center" style="width:100%">
+            <h1 align="center">Oncall Report </h1>
+            <h2 align="center">''' + 'Oncall Summery From {0} To {1}'.format(errorSinceTime.strftime("%Y-%m-%d %H:%M"),currentTime.strftime("%Y-%m-%d %H:%M"))+ '''</h2>
+            <table align="center" style="width:100%; border:1px solid black; border-collapse:collapse;">
                 <tr>
-                    <td align="center"> <strong>Error Type</strong> </td>
-                    <td width="30"  align="center"> <strong>Occured Times</strong> </td>
-                    <td align="center"> <strong>Occured Time</strong> </td>
-                    <td align="center"> <strong>Error Message Digest</strong> </td>
+                    <td align="center"  '''+table_tr_td_style+'''> <strong>Error Type</strong> </td>
+                    <td width="30"  align="center" '''+table_tr_td_style+'''> <strong>Occured Times</strong> </td>
+                    <td align="center" '''+table_tr_td_style+'''> <strong>Occured Time</strong> </td>
+                    <td align="center" '''+table_tr_td_style+'''> <strong>Error Message Digest</strong> </td>
                 </tr>
                 '''+htmlReport+'''
             </table>
@@ -231,12 +234,12 @@ def main():
     print(summaryReport2)
     #print(summaryReport)
     if last_N_days == 1:
-        sendEmail(config, 'data-eng-blackhole@p1.com', 'david@p1.com', errorSinceTime, currentTime, summaryReport2,isHTML = True)
+        sendEmail(config, 'data-eng-blackhole@p1.com', 'davidthinkleding@gmail.com', errorSinceTime, currentTime, summaryReport2,isHTML = True)
         #sendEmail(config, 'david@p1.com', 'david@p1.com', errorSinceTime, currentTime, summaryReport2)
         print('Done...')
     else:
-        sendEmail(config, 'data-eng-blackhole@p1.com', 'david@p1.com', errorSinceTime, currentTime, summaryReport2, isHTML = True)  #uncommand this line if you want to send an email for only one day's report
-        print('Email not send...')
+        sendEmail(config, 'data-eng-blackhole@p1.com', 'david@p1.com', errorSinceTime, currentTime, summaryReport2, isHTML = True)  #uncommand this line if you want to send an email for only one day's repor
+        #print('Email not send...')
 
 
 if __name__ == "__main__":
